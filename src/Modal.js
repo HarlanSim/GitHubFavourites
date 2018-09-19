@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './Modal.css';
 
 class Modal extends Component {
   render() {
@@ -6,17 +7,17 @@ class Modal extends Component {
 
     return (
         <div className="modal show">
-            <div className="modal-dialog">
+            <div id="main-modal" className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
                         <button type="button" className="close" data-dismiss="modal" aria-hidden="true">&times;</button>       
-                        <h4 className="modal-title">{title}</h4>
+                        <h3 className="modal-title">{title}</h3>
                     </div>
-                    <div className="modal-body">
-                        <div>
+                    <div id="main-body">
+                        <div className="col-md-6 h-100">
                             {leftPanel}
                         </div> 
-                        <div>
+                        <div className="col-md-6 h-100" style={{backgroundColor: '#f3ecfe'}}>
                             {rightPanel}
                         </div>
                     </div>

@@ -3,8 +3,9 @@ import Modal from './Modal';
 
 class App extends Component {
   render() {
+    const modalTitle = "My GitHub Favourites";
     return (
-      <Modal/>
+      <Modal title={modalTitle} leftPanel="Hello" rightPanel="World"/>
     );
   }
 }
