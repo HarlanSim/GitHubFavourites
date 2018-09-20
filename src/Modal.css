@@ -1,5 +1,7 @@
 #main-body {
     height: 500px;
+    word-wrap: break-word;
+    font-size: 1em;
 }
 
 #main-modal {
