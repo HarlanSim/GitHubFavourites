@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './Modal.css';
 
+const GITHUBSEARCHURL = "https://api.github.com/search/repositories?sort=updated&q=";
+
 class App extends Component {
 	constructor() {
 		super();
@@ -13,11 +15,11 @@ class App extends Component {
 	}
 
 	handleChange(e) {
-		if(e.target.value.length === 0) {
+		if (e.target.value.length === 0) {
 			// Clear search results if search bar is empty;
-			this.setState({ input: e.target.value, searchResults: [] }); 
+			this.setState({ input: e.target.value, searchResults: [] });
 		} else {
-			this.setState({ input: e.target.value});
+			this.setState({ input: e.target.value });
 		}
 	}
 
@@ -29,7 +31,7 @@ class App extends Component {
 
 	search() {
 		let inputTextValue = this.state.input;
-		const searchGithubReposURL = "https://api.github.com/search/repositories?sort=updated&q=" + inputTextValue;
+		const searchGithubReposURL = GITHUBSEARCHURL + inputTextValue;
 
 		fetch(searchGithubReposURL)
 			.then(response => response.json())
@@ -46,7 +48,7 @@ class App extends Component {
 			for (var i = 0; i < maxSearchResultsLength; i++) {
 				let repo = searchResultsObj[i];
 				let latestTag = "-";
-				
+
 				// Need to look up latest tag for each search result
 				fetch(repo.tags_url)
 					.then(response => response.json())
@@ -106,8 +108,8 @@ class App extends Component {
 
 		favorites.find((r, i) => {
 			if (r.name === repo.name) {
-				favorites.splice(i, 1); 
-				return true; 
+				favorites.splice(i, 1);
+				return true;
 			}
 		});
 
@@ -121,7 +123,6 @@ class App extends Component {
 			for (var i = 0; i < repoList.length; i++) {
 				let cell = [];
 				let cellID = `cell${i}`;
-
 				let repo = repoList[i];
 
 				cell.push(<td key={cellID + '-0'}>{repo.name}</td>);
@@ -130,11 +131,7 @@ class App extends Component {
 
 				if (isSearchTable) {
 					// If it is a search result, we want a button to add to favorites (unless already added)
-					cell.push(<td key={cellID + '-3'}>{
-						repo.isFavourite === true ?
-							'' :
-							<a onClick={() => this.addToFavorites(repo)}>Add</a>
-					}</td>);
+					cell.push(<td key={cellID + '-3'}>{repo.isFavourite === true ? '' : <a onClick={() => this.addToFavorites(repo)}>Add</a>}</td>);
 				} else {
 					// If it is a favorite, we want a button to remove it
 					cell.push(<td key={cellID + '-3'}>{<a onClick={() => this.removeFromFavorites(repo)}>Remove</a>}</td>);
@@ -213,7 +210,6 @@ class Repository {
 		this.name = name;
 		this.language = language;
 		this.latestTag = latestTag;
-		this.language = language;
 		this.isFavourite = false;
 	}
 }
