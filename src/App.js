@@ -4,7 +4,7 @@ import './Modal.css';
 class App extends Component {
 	constructor() {
 		super();
-		this.state = { searchResults: [], input: '', favorites: []};
+		this.state = { searchResults: [], input: '', favorites: [] };
 		this.addToFavorites = this.addToFavorites.bind(this);
 		this.parseSearchResults = this.parseSearchResults.bind(this);
 		this.search = this.search.bind(this);
@@ -61,13 +61,13 @@ class App extends Component {
 	}
 
 	addToFavorites(repo) {
-		console.log("Add to favourites!!")
 		repo.isFavourite = true;
-		
-		console.log("Current search results: " + JSON.stringify(searchResults));
 
 		// Replace the search result
 		let searchResults = this.state.searchResults;
+
+		console.log("Current search results: " + JSON.stringify(searchResults));
+
 		searchResults.find((r, i) => {
 			if (r.name === repo.name) {
 				searchResults[i] = repo;
@@ -80,55 +80,84 @@ class App extends Component {
 		// Add to favorites
 		let favorites = this.state.favorites;
 		favorites.push(repo);
-		
+
 		// Push changes
-		this.setState({favorites: favorites})
+		this.setState({ favorites: favorites, searchResults: searchResults })
+	}
+
+	removeFromFavorites(repo) {
+		repo.isFavourite = false;
+
+
+		// Replace the search result
+		let searchResults = this.state.searchResults;
+
+		console.log("Current search results: " + JSON.stringify(searchResults));
+
+		searchResults.find((r, i) => {
+			if (r.name === repo.name) {
+				searchResults[i] = repo; // Replace
+				return true; // stop searching
+			}
+		});
+
+		console.log("Replaced search result : " + JSON.stringify(searchResults));
+
+		// Remove from favorites
+		let favorites = this.state.favorites;
+		console.log("Current favorites : " + JSON.stringify(favorites));
+		favorites.find((r, i) => {
+			if (r.name === repo.name) {
+				favorites.splice(i, 1); // Remove
+				return true; // stop searching
+			}
+		});
+		console.log("Replaced favorites : " + JSON.stringify(favorites));
+
+		// Push changes
+		this.setState({ favorites: favorites, searchResults: searchResults })
+	}
+
+	fillRows(repoList, isSearchTable) {
+		var rows = [];
+		if (repoList !== undefined) {
+			for (var i = 0; i < repoList.length; i++) {
+				let cell = [];
+				let cellID = `cell${i}`;
+
+				let repo = repoList[i];
+
+				cell.push(<td key={cellID + '-0'}>{repo.name}</td>);
+				cell.push(<td key={cellID + '-1'}>{repo.language}</td>);
+				cell.push(<td key={cellID + '-2'}>{repo.latestTag}</td>);
+
+				if (isSearchTable) {
+					cell.push(<td key={cellID + '-3'}>{
+						repo.isFavourite === true ?
+							'' :
+							<a onClick={() => this.addToFavorites(repo)}>Add</a>
+					}</td>);
+				} else {
+					cell.push(<td key={cellID + '-3'}>{
+						repo.isFavourite === true ?
+							<a onClick={() => this.removeFromFavorites(repo)}>Remove</a> :
+							''
+					}
+					</td>);
+				}
+				rows.push(<tr key={cellID}>{cell}</tr>);
+			}
+		}
+		console.log(rows);
+		return rows;
 	}
 
 	render() {
 		const searchResults = this.state.searchResults;
 		const favorites = this.state.favorites;
 
-		let searchRows = [];
-		let favoriteRows = [];
-
-		console.log("before search");
-		if (searchResults !== undefined) {
-			for (var i = 0; i < searchResults.length; i++) {
-				let cell = [];
-				let cellID = `cell-0-${i}`;
-
-				let searchResult = searchResults[i];
-
-				cell.push(<td key={cellID + '-0'}>{searchResult.name}</td>);
-				cell.push(<td key={cellID + '-1'}>{searchResult.language}</td>);
-				cell.push(<td key={cellID + '-2'}>{searchResult.latestTag}</td>);
-				cell.push(<td key={cellID + '-3'}>{searchResult.isFavourite === true ? '' : <a onClick={() => this.addToFavorites(searchResult)}>Add</a>}</td>);
-				
-				searchRows.push(<tr key={cellID}>{cell}</tr>);
-			}
-		}
-		console.log("after search");
-
-		console.log("before favorites");
-		if (favorites !== undefined) {
-			console.log("favorites length: " + favorites.length);
-			for (var j = 0; j < favorites.length; j++) {
-				console.log("j: " + j);
-				let cell = [];
-				let cellID = `cell-1-${j}`;
-
-				let favorite = favorites[j];
-
-				cell.push(<td key={cellID + '-0'}>{favorite.name}</td>);
-				cell.push(<td key={cellID + '-1'}>{favorite.language}</td>);
-				cell.push(<td key={cellID + '-2'}>{favorite.latestTag}</td>);
-				cell.push(<td key={cellID + '-3'}>{favorite.isFavourite === true ? <a onClick={() => console.log("Removing: " + favorite)}>Remove</a> : '' }</td>);//this.removeFromFavorites(repo)}>Remove</a> : '' }</td>);
-				
-				favoriteRows.push(<tr key={cellID}>{cell}</tr>);
-			}
-		}
-		console.log("after favorites");
+		let searchRows = this.fillRows(searchResults, true);
+		let favoriteRows = this.fillRows(favorites);
 
 		return (
 			<div className="modal show">
