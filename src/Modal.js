@@ -29,7 +29,7 @@ class App extends Component {
 
 	search() {
 		let inputTextValue = this.state.input;
-		const searchGithubReposURL = "https://api.github.com/search/repositories?q=" + inputTextValue;
+		const searchGithubReposURL = "https://api.github.com/search/repositories?sort=updated&q=" + inputTextValue;
 
 		fetch(searchGithubReposURL)
 			.then(response => response.json())
@@ -62,6 +62,8 @@ class App extends Component {
 						}
 					});
 			}
+		} else {
+			this.setState({ searchResults: [] });
 		}
 	}
 
