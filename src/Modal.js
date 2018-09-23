@@ -6,7 +6,7 @@ const GITHUBSEARCHURL = "https://api.github.com/search/repositories?sort=updated
 class App extends Component {
 	constructor() {
 		super();
-		this.state = { searchResults: [], input: '', favorites: [] };
+		this.state = { searchResults: [], input: '', favorites: {} };
 		this.addToFavorites = this.addToFavorites.bind(this);
 		this.parseSearchResults = this.parseSearchResults.bind(this);
 		this.search = this.search.bind(this);
@@ -70,54 +70,19 @@ class App extends Component {
 	}
 
 	addToFavorites(repo) {
-		repo.isFavourite = true;
-
-		// Replace the search result
-		let searchResults = this.state.searchResults;
-
-		searchResults.find((r, i) => {
-			if (r.name === repo.name) {
-				searchResults[i] = repo;
-				return true;
-			}
-		});
-
 		// Add to favorites list
 		let favorites = this.state.favorites;
-		favorites.push(repo);
-
-		// Push both changes
-		this.setState({ favorites: favorites, searchResults: searchResults })
+		favorites[repo.name] = repo;
+		this.setState({ favorites: favorites })
 	}
 
 	removeFromFavorites(repo) {
-		repo.isFavourite = false;
-
-		// Replace the search result
-		let searchResults = this.state.searchResults;
-
-		searchResults.find((r, i) => {
-			if (r.name === repo.name) {
-				searchResults[i] = repo;
-				return true;
-			}
-		});
-
-		// Remove from favorites list
 		let favorites = this.state.favorites;
-
-		favorites.find((r, i) => {
-			if (r.name === repo.name) {
-				favorites.splice(i, 1);
-				return true;
-			}
-		});
-
-		// Push both changes
-		this.setState({ favorites: favorites, searchResults: searchResults })
+		delete favorites[repo.name];
+		this.setState({ favorites: favorites })
 	}
 
-	fillRows(repoList, isSearchTable) {
+	fillSearchRows(repoList) {
 		var rows = [];
 		if (repoList !== undefined) {
 			for (var i = 0; i < repoList.length; i++) {
@@ -128,14 +93,25 @@ class App extends Component {
 				cell.push(<td key={cellID + '-0'}>{repo.name}</td>);
 				cell.push(<td key={cellID + '-1'}>{repo.language}</td>);
 				cell.push(<td key={cellID + '-2'}>{repo.latestTag}</td>);
+				cell.push(<td key={cellID + '-3'}>{(this.state.favorites[repo.name]) ? '' : <a onClick={() => this.addToFavorites(repo)}>Add</a>}</td>);
+				rows.push(<tr key={cellID}>{cell}</tr>);
+			}
+		}
+		return rows;
+	}
 
-				if (isSearchTable) {
-					// If it is a search result, we want a button to add to favorites (unless already added)
-					cell.push(<td key={cellID + '-3'}>{repo.isFavourite === true ? '' : <a onClick={() => this.addToFavorites(repo)}>Add</a>}</td>);
-				} else {
-					// If it is a favorite, we want a button to remove it
-					cell.push(<td key={cellID + '-3'}>{<a onClick={() => this.removeFromFavorites(repo)}>Remove</a>}</td>);
-				}
+	fillFavoriteRows(repoList) {
+		var rows = [];
+		if (repoList !== undefined) {
+			for (var r in repoList) {
+				let cell = [];
+				let cellID = `cell${r}`;
+				let repo = repoList[r];
+
+				cell.push(<td key={cellID + '-0'}>{repo.name}</td>);
+				cell.push(<td key={cellID + '-1'}>{repo.language}</td>);
+				cell.push(<td key={cellID + '-2'}>{repo.latestTag}</td>);
+				cell.push(<td key={cellID + '-3'}>{<a onClick={() => this.removeFromFavorites(repo)}>Remove</a>}</td>);
 				rows.push(<tr key={cellID}>{cell}</tr>);
 			}
 		}
@@ -146,8 +122,8 @@ class App extends Component {
 		const searchResults = this.state.searchResults;
 		const favorites = this.state.favorites;
 
-		let searchRows = this.fillRows(searchResults, true);
-		let favoriteRows = this.fillRows(favorites);
+		let searchRows = this.fillSearchRows(searchResults);
+		let favoriteRows = this.fillFavoriteRows(favorites);
 
 		return (
 			<div className="modal show">
@@ -210,7 +186,6 @@ class Repository {
 		this.name = name;
 		this.language = language;
 		this.latestTag = latestTag;
-		this.isFavourite = false;
 	}
 }
 
